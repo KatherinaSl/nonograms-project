@@ -1,0 +1,139 @@
+* {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  /* background-color: rgb(1, 101, 1); */
+  background-color: #007143;
+}
+
+.header {
+  max-width: 1200px;
+  padding: 30px 40px 30px 40px;
+  margin: auto;
+}
+
+.header__title {
+  font-size: 42px;
+  font-family: "Playfair Display", serif;
+  /* color: goldenrod; */
+  color: #a69800;
+  text-align: center;
+}
+
+.main {
+  max-width: 1200px;
+  padding: 30px 40px 30px 40px;
+  margin: auto;
+}
+
+.main_game-rules {
+  font-weight: bold;
+  font-size: 26px;
+  color: black;
+  padding: 10px 10px 10px 0;
+}
+
+.main_game-rules p {
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.playground-area {
+  font-weight: bold;
+  font-size: 26px;
+  color: black;
+  padding: 10px 10px 10px 0;
+}
+
+/*  */
+table {
+  border-collapse: collapse;
+  /* margin: 20px auto; */
+  margin: auto;
+}
+td {
+  width: 40px;
+  height: 40px;
+  font-size: 150%;
+}
+tr {
+  text-align: center;
+}
+.playgroundCell {
+  border: 2px solid black;
+  background-color: aliceblue;
+  cursor: pointer;
+}
+
+td:nth-child(1 of .playgroundCell) {
+  border-left: 5px solid black;
+}
+
+td:nth-child(5n of .playgroundCell) {
+  border-right: 5px solid black;
+}
+
+/* fix  */
+tr:nth-child(3) td:nth-child(n + 1 of .playgroundCell) {
+  border-top: 5px solid black;
+}
+
+tr:nth-child(7n) td.playgroundCell {
+  border-bottom: 5px solid black;
+}
+
+/**/
+
+.cluesCell {
+  background-color: #007143;
+}
+
+.selectedCell {
+  background-color: rgba(9, 9, 161, 0.462);
+  /* background-color: black; */
+}
+
+.leftClueCell {
+  border-right: 1px solid black;
+}
+
+.topClueCell {
+  border-bottom: 1px solid black;
+}
+
+.pop-up {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(41, 41, 41, 0.6);
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.pop-up__content {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30%;
+  height: 20%;
+  border-radius: 20px;
+  background-color: #fafafa;
+
+  font-weight: bold;
+  font-size: 26px;
+  color: black;
+  text-align: center;
+  padding: 10px;
+}
