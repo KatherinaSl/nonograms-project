@@ -5,20 +5,19 @@
 }
 
 body {
-  /* background-color: rgb(1, 101, 1); */
-  background-color: #007143;
+  background-image: url("./assets/miyazaki.jpg");
+  background-size: cover;
 }
 
 .header {
   max-width: 1200px;
-  padding: 30px 40px 30px 40px;
+  padding: 20px;
   margin: auto;
 }
 
 .header__title {
-  font-size: 42px;
+  font-size: 72px;
   font-family: "Playfair Display", serif;
-  /* color: goldenrod; */
   color: #a69800;
   text-align: center;
 }
@@ -27,6 +26,7 @@ body {
   max-width: 1200px;
   padding: 30px 40px 30px 40px;
   margin: auto;
+  font-family: "Open Sans", sans-serif;
 }
 
 .main_game-rules {
@@ -37,22 +37,48 @@ body {
 }
 
 .main_game-rules p {
+  white-space: pre-line;
   font-size: 20px;
   font-weight: normal;
+  padding: 10px 10px 10px 0;
 }
 
-.playground-area {
-  font-weight: bold;
-  font-size: 26px;
+.main_playground-area {
   color: black;
   padding: 10px 10px 10px 0;
+}
+
+.main_flex-container {
+  display: flex;
+  width: 100%;
+  gap: 40px;
+  padding: 10px;
+}
+
+.main_flex-container ul {
+  font-size: 24px;
+}
+
+.main_flex-container .flex-box {
+  width: 30%;
+}
+
+li {
+  list-style-type: "✓";
+  list-style-position: inside;
+  font-size: 20px;
+  padding: 5px 0;
+  cursor: pointer;
+}
+
+li::marker {
+  color: #a69800;
 }
 
 /*  */
 table {
   border-collapse: collapse;
-  /* margin: 20px auto; */
-  margin: auto;
+  margin: 50px auto;
 }
 td {
   width: 40px;
@@ -64,7 +90,7 @@ tr {
 }
 .playgroundCell {
   border: 2px solid black;
-  background-color: aliceblue;
+  background-color: #fdf3f3;
   cursor: pointer;
 }
 
@@ -85,15 +111,15 @@ tr:nth-child(7n) td.playgroundCell {
   border-bottom: 5px solid black;
 }
 
-/**/
-
-.cluesCell {
-  background-color: #007143;
+.selectedCell {
+  background-color: rgb(8, 8, 144);
 }
 
-.selectedCell {
-  background-color: rgba(9, 9, 161, 0.462);
-  /* background-color: black; */
+.xCell {
+  background-image: url("./assets/xcross.gif");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .leftClueCell {
@@ -104,7 +130,7 @@ tr:nth-child(7n) td.playgroundCell {
   border-bottom: 1px solid black;
 }
 
-.pop-up {
+.main_pop-up {
   position: fixed;
   top: 0;
   right: 0;
@@ -121,7 +147,7 @@ tr:nth-child(7n) td.playgroundCell {
   visibility: hidden;
 }
 
-.pop-up__content {
+.main_pop-up__content {
   margin: auto;
   display: flex;
   justify-content: center;
@@ -136,4 +162,42 @@ tr:nth-child(7n) td.playgroundCell {
   color: black;
   text-align: center;
   padding: 10px;
+}
+
+.currentPuzzle {
+  color: #a69800;
+}
+
+/*RESET BUTTON*/
+button {
+  margin: auto;
+  border-radius: 50px;
+  background-color: #a69800;
+  border: 1px solid #a69800;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #fdf3f3;
+  box-shadow: 0 0 0 5px rgba(166, 152, 0, 0.5);
+}
+
+button div {
+  margin: 10px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar p {
+  margin-top: 5px;
+  font-size: 24px;
+  align-self: center;
+}
+
+.main_playground-box {
+  display: flex;
+  flex-direction: row;
 }

@@ -1,0 +1,117 @@
+[
+  {
+    "id": "basic1",
+    "level": 1,
+    "version": "1",
+    "solution": [
+      [true, true, true, true, false],
+      [true, true, true, false, true],
+      [true, true, false, false, true],
+      [false, false, false, false, true],
+      [false, true, true, true, true]
+    ],
+    "leftClues": [
+      [0, 4],
+      [3, 1],
+      [2, 1],
+      [0, 1],
+      [0, 4]
+    ],
+    "topClues": [
+      [0, 3, 2, 1, 0],
+      [3, 1, 1, 1, 4]
+    ]
+  },
+  {
+    "id": "basic2",
+    "level": 1,
+    "version": "2",
+    "solution": [
+      [false, false, false, false, true],
+      [true, true, true, true, true],
+      [true, true, false, true, true],
+      [false, false, true, true, true],
+      [false, false, true, false, false]
+    ],
+    "leftClues": [
+      [0, 1],
+      [0, 5],
+      [2, 2],
+      [0, 3],
+      [0, 1]
+    ],
+    "topClues": [
+      [0, 0, 1, 0, 0],
+      [2, 2, 2, 3, 4]
+    ]
+  },
+  {
+    "id": "basic3",
+    "level": 1,
+    "version": "3",
+    "solution": [
+      [false, false, true, true, false],
+      [true, true, true, true, false],
+      [false, false, true, false, true],
+      [true, true, true, true, true],
+      [false, true, true, true, true]
+    ],
+    "leftClues": [
+      [0, 2],
+      [0, 4],
+      [1, 1],
+      [0, 5],
+      [0, 4]
+    ],
+    "topClues": [
+      [1, 1, 0, 2, 0],
+      [1, 2, 5, 2, 3]
+    ]
+  },
+  {
+    "id": "basic4",
+    "level": 1,
+    "version": "4",
+    "solution": [
+      [false, true, false, true, false],
+      [false, false, true, false, false],
+      [false, true, false, false, false],
+      [true, true, true, true, true],
+      [false, true, true, true, true]
+    ],
+    "leftClues": [
+      [1, 1],
+      [0, 1],
+      [0, 1],
+      [0, 5],
+      [0, 4]
+    ],
+    "topClues": [
+      [0, 1, 1, 1, 0],
+      [1, 3, 2, 2, 2]
+    ]
+  },
+  {
+    "id": "basic5",
+    "level": 1,
+    "version": "5",
+    "solution": [
+      [true, true, true, true, true],
+      [true, false, false, false, false],
+      [false, true, false, false, true],
+      [false, true, false, true, true],
+      [true, true, true, true, true]
+    ],
+    "leftClues": [
+      [0, 5],
+      [0, 1],
+      [1, 1],
+      [1, 2],
+      [0, 5]
+    ],
+    "topClues": [
+      [2, 1, 1, 1, 1],
+      [1, 3, 1, 2, 3]
+    ]
+  }
+]
