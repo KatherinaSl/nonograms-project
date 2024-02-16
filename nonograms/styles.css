@@ -45,7 +45,7 @@ body {
 
 .main_playground-area {
   color: black;
-  padding: 10px 10px 10px 0;
+  padding: 10px 0;
 }
 
 .main_flex-container {
@@ -78,7 +78,7 @@ li::marker {
 /*  */
 table {
   border-collapse: collapse;
-  margin: 50px auto;
+  margin: 50px;
 }
 td {
   width: 40px;
@@ -152,11 +152,24 @@ tr:nth-child(7n) td.playgroundCell {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30%;
-  height: 20%;
+  /* width: 30%;
+  height: 20%; */
   border-radius: 20px;
-  background-color: #fafafa;
+  background-color: #ffffff;
+  background-position: bottom right;
+  font-weight: bold;
+  font-size: 26px;
+  color: black;
+  text-align: center;
+  padding: 10px;
+}
 
+.main_pop-up__content img {
+  width: 200px;
+  height: 200px;
+}
+
+.main_pop-up__note {
   font-weight: bold;
   font-size: 26px;
   color: black;
@@ -179,14 +192,17 @@ button {
 
 button:hover {
   background-color: #fdf3f3;
-  box-shadow: 0 0 0 5px rgba(166, 152, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(210, 192, 3, 0.5);
 }
 
 button div {
   margin: 10px;
+  width: 165px;
 }
 
 .sidebar {
+  /* border-radius: 30px;
+  background-color: #a69800; */
   display: flex;
   flex-direction: column;
 }
@@ -200,4 +216,18 @@ button div {
 .main_playground-box {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+}
+
+.timer {
+  padding-left: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+}
+
+#stopwatch {
+  padding: 10px;
+  border: 2px solid #a69800;
+  border-radius: 10px;
 }

@@ -1,15 +1,14 @@
 import puzzles from "./puzzles.json" assert { type: "json" };
 
-let startTime;
 let stopwatchInterval;
+let currentPuzzleId;
 let elapsedTime = 0;
-
 let progress = [
-  [false, false, false, false, false],
-  [false, false, false, false, false],
-  [false, false, false, false, false],
-  [false, false, false, false, false],
-  [false, false, false, false, false],
+  ["0", "0", "0", "0", "0"],
+  ["0", "0", "0", "0", "0"],
+  ["0", "0", "0", "0", "0"],
+  ["0", "0", "0", "0", "0"],
+  ["0", "0", "0", "0", "0"],
 ];
 
 let listOfPuzzles = {
@@ -43,6 +42,8 @@ function createElements() {
   const playground = document.createElement("div");
   playground.classList.add("main_playground-area");
 
+  let continueButton = createContinueButton();
+
   const subtitle = document.createElement("h2");
   subtitle.textContent = "Nonogram Puzzles";
 
@@ -53,12 +54,19 @@ function createElements() {
   popup.classList.add("main_pop-up");
   popup.classList.add("hidden");
 
-  const notification = document.createElement("div");
-  notification.classList.add("main_pop-up__content");
+  const notification = document.createElement("p");
+  notification.classList.add("main_pop-up__note");
 
-  popup.append(notification);
+  const img = document.createElement("img");
+  img.src = "./assets/totoro.gif";
+
+  const content = document.createElement("div");
+  content.classList.add("main_pop-up__content");
+  content.append(img, notification);
+
+  popup.append(content);
   playground.append(subtitle, ul, popup);
-  main.append(basicRules, playground);
+  main.append(basicRules, continueButton, playground);
   document.querySelector("body").append(header, main);
 }
 
@@ -83,36 +91,41 @@ function createListOfPuzzles() {
       li.id = filteredPuzzles[j].id;
 
       li.addEventListener("click", (event) => {
+        if (document.querySelector("table")) {
+          resetTimer();
+          resetGame();
+          resetCells();
+
+          document.querySelector("table").remove();
+          document.querySelector("#resetButton").remove();
+          document.querySelector("#saveButton").remove();
+          document.querySelector("#stopwatch").remove();
+        }
+
         const div = document.createElement("div");
+        const addition = document.createElement("div");
+        const timerDiv = document.createElement("div");
 
         let currentPuzzles = document.querySelectorAll(".currentPuzzle");
         let table = createTable(filteredPuzzles[j]);
-
-        let addition = document.createElement("div");
+        currentPuzzleId = filteredPuzzles[j].id;
         let resetButton = createResetButton();
-        let timer = createTimer();
         let saveButton = createSaveButton();
-
-        div.classList.add("main_playground-box");
-        div.append(addition, table);
+        let timer = createTimer();
 
         addition.classList.add("sidebar");
-        addition.append(resetButton, timer, saveButton);
+        addition.append(resetButton, saveButton);
+
+        timerDiv.classList.add("timer");
+        timerDiv.append(timer);
+
+        div.classList.add("main_playground-box");
+        div.append(timerDiv, table, addition);
 
         event.target.classList.add("currentPuzzle");
 
         for (let puzzle of currentPuzzles) {
           puzzle.classList.remove("currentPuzzle");
-        }
-
-        if (document.querySelector("table")) {
-          document.querySelector("table").remove();
-
-          resetTimer();
-          resetGame();
-          document.querySelector("#resetButton").remove();
-          document.querySelector("#saveButton").remove();
-          document.querySelector("#stopwatch").remove();
         }
 
         document.querySelector(".main_playground-area").append(div);
@@ -160,9 +173,14 @@ function createTable(puzzle) {
       //playground
       if (i >= topCluesHeight && j >= leftCluesWidth) {
         td.classList.add("playgroundCell");
+
+        if (progress[i - topCluesHeight][j - leftCluesWidth] === "x") {
+          td.classList.add("selectedCell");
+        } else if (progress[i - topCluesHeight][j - leftCluesWidth] === "y") {
+          td.classList.add("xCell");
+        }
         td.addEventListener("click", () => {
           startTimer();
-          td.classList.toggle("selectedCell");
           td.classList.remove("xCell");
 
           //   SOUND EFFECTS
@@ -172,16 +190,17 @@ function createTable(puzzle) {
             playSound("whiteCell");
           }
 
-          if (progress[i - topCluesHeight][j - leftCluesWidth]) {
-            progress[i - topCluesHeight][j - leftCluesWidth] = false;
+          if (progress[i - topCluesHeight][j - leftCluesWidth] === "x") {
+            progress[i - topCluesHeight][j - leftCluesWidth] = "0";
+            td.classList.remove("selectedCell");
           } else {
-            progress[i - topCluesHeight][j - leftCluesWidth] = true;
+            progress[i - topCluesHeight][j - leftCluesWidth] = "x";
+            td.classList.add("selectedCell");
           }
 
           //   check results
           let result = checkResult(puzzle);
           if (result) {
-            // console.log("secess");
             let sound = new Audio("./sounds/win.mp3");
             stopTimer();
             showPopup();
@@ -192,11 +211,16 @@ function createTable(puzzle) {
         td.addEventListener("contextmenu", (event) => {
           startTimer();
           event.preventDefault();
-          progress[i - topCluesHeight][j - leftCluesWidth] = false;
-          td.classList.toggle("xCell");
-          if (td.classList.contains("selectedCell")) {
-            td.classList.remove("selectedCell");
+
+          if (progress[i - topCluesHeight][j - leftCluesWidth] === "y") {
+            progress[i - topCluesHeight][j - leftCluesWidth] = "0";
+            td.classList.remove("xCell");
+          } else {
+            progress[i - topCluesHeight][j - leftCluesWidth] = "y";
+            td.classList.add("xCell");
           }
+
+          td.classList.remove("selectedCell");
 
           //   SOUND EFFECTS
           if (td.classList.contains("xCell")) {
@@ -221,7 +245,9 @@ function checkResult(puzzle) {
   let result = true;
   for (let i = 0; i < puzzle.solution.length; i++) {
     for (let j = 0; j < puzzle.solution[i].length; j++) {
-      if (progress[i][j] != puzzle.solution[i][j]) {
+      if (
+        isCellSelected(progress[i][j]) !== isCellSelected(puzzle.solution[i][j])
+      ) {
         result = false;
       }
     }
@@ -231,11 +257,11 @@ function checkResult(puzzle) {
 
 function showPopup() {
   let popup = document.querySelector(".main_pop-up");
+  let seconds = Math.floor(elapsedTime / 1000);
+
   popup.classList.remove("hidden");
-  document.querySelector(".main_pop-up__content").innerHTML =
-    "Great! You have solved the nonogram in " +
-    formatTime(elapsedTime) +
-    " seconds!";
+  document.querySelector(".main_pop-up__note").innerHTML =
+    "Great! You have solved the nonogram in " + seconds + " seconds!";
 }
 
 document.addEventListener("click", (event) => {
@@ -256,24 +282,19 @@ function createResetButton() {
   div.textContent = "Reset game";
 
   resetButton.addEventListener("click", () => {
-    let cells = document.querySelectorAll(".playgroundCell");
-
     resetTimer();
     resetGame();
-
-    for (let cell of cells) {
-      if (
-        cell.classList.contains("xCell") ||
-        cell.classList.contains("selectedCell")
-      ) {
-        cell.classList.remove("xCell");
-        cell.classList.remove("selectedCell");
-      }
-    }
+    resetCells();
   });
 
   resetButton.append(div);
   return resetButton;
+}
+
+function resetGame() {
+  for (let i = 0; i < progress.length; i++) {
+    progress[i].fill("0");
+  }
 }
 
 function createSaveButton() {
@@ -281,14 +302,36 @@ function createSaveButton() {
   const div = document.createElement("div");
   saveButton.id = "saveButton";
   div.textContent = "Save game";
+
+  div.addEventListener("click", () => {
+    saveCurrentProgress(progress);
+  });
+
   saveButton.append(div);
   return saveButton;
 }
 
-function resetGame() {
-  for (let i = 0; i < progress.length; i++) {
-    progress[i].fill(false);
-  }
+function createContinueButton() {
+  const saveButton = document.createElement("button");
+  const div = document.createElement("div");
+  saveButton.id = "continueButton";
+  div.textContent = "Continue last game";
+
+  div.addEventListener("click", () => {
+    getCurrentProgress();
+  });
+
+  saveButton.append(div);
+  return saveButton;
+}
+
+function playSound(soundName) {
+  let sound = new Audio("./sounds/" + soundName + ".mp3");
+  sound.play();
+}
+
+function isCellSelected(cell) {
+  return cell === "x";
 }
 
 // timer
@@ -302,15 +345,13 @@ function createTimer() {
 
 function startTimer() {
   if (!stopwatchInterval) {
-    startTime = new Date().getTime();
     stopwatchInterval = setInterval(updateStopwatch, 1000);
   }
 }
 
 function updateStopwatch() {
-  let currentTime = new Date().getTime();
-  let timeSpent = currentTime - startTime;
-  document.getElementById("stopwatch").innerHTML = formatTime(timeSpent);
+  elapsedTime += 1000;
+  document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime);
 }
 
 function pad(number) {
@@ -319,11 +360,11 @@ function pad(number) {
 
 function stopTimer() {
   clearInterval(stopwatchInterval);
-  elapsedTime = new Date().getTime() - startTime;
   stopwatchInterval = null;
 }
 
 function resetTimer() {
+  elapsedTime = 0;
   document.getElementById("stopwatch").innerHTML = "00:00";
   stopTimer();
 }
@@ -335,7 +376,64 @@ function formatTime(timePeriod) {
   return displayTime;
 }
 
-function playSound(soundName) {
-  let sound = new Audio("./sounds/" + soundName + ".mp3");
-  sound.play();
+function saveCurrentProgress(gameProgress) {
+  localStorage.setItem("progress", JSON.stringify(gameProgress));
+  localStorage.setItem("elapsedTime", elapsedTime);
+  localStorage.setItem("currentPuzzleId", currentPuzzleId);
+}
+
+function getCurrentProgress() {
+  progress = JSON.parse(localStorage.getItem("progress"));
+  currentPuzzleId = localStorage.getItem("currentPuzzleId");
+
+  elapsedTime = Number(localStorage.getItem("elapsedTime"));
+  startTimer();
+
+  // CREATE NEW PUZZLE
+  if (document.querySelector("table")) {
+    document.querySelector("table").remove();
+    document.querySelector("#resetButton").remove();
+    document.querySelector("#saveButton").remove();
+    document.querySelector("#stopwatch").remove();
+  }
+
+  const div = document.createElement("div");
+  const addition = document.createElement("div");
+  const timerDiv = document.createElement("div");
+
+  let resetButton = createResetButton();
+  let saveButton = createSaveButton();
+  let timer = createTimer();
+
+  let filteredPuzzle = puzzles.filter(
+    (puzzle) => puzzle.id === currentPuzzleId
+  );
+  console.log("current puzzle id: " + currentPuzzleId);
+  console.log("current puzzle: " + filteredPuzzle[0]);
+  let table = createTable(filteredPuzzle[0]);
+
+  addition.classList.add("sidebar");
+  addition.append(resetButton, saveButton);
+
+  timerDiv.classList.add("timer");
+  timerDiv.append(timer);
+
+  div.classList.add("main_playground-box");
+  div.append(timerDiv, table, addition);
+
+  let currentPuzzles = document.querySelectorAll(".currentPuzzle");
+  for (let puzzle of currentPuzzles) {
+    puzzle.classList.remove("currentPuzzle");
+  }
+
+  document.querySelector("#" + currentPuzzleId).classList.add("currentPuzzle");
+  document.querySelector(".main_playground-area").append(div);
+}
+
+function resetCells() {
+  let cells = document.querySelectorAll(".playgroundCell");
+  for (let cell of cells) {
+    cell.classList.remove("xCell");
+    cell.classList.remove("selectedCell");
+  }
 }
