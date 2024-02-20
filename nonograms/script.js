@@ -1,8 +1,12 @@
 import puzzles from "./puzzles.json" assert { type: "json" };
+import Timer from "./timer.js";
 
-let stopwatchInterval;
+const timer = new Timer(
+  (elapsedTime) =>
+    (document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime))
+);
+
 let currentPuzzleId;
-let elapsedTime = 0;
 let progress = [
   ["0", "0", "0", "0", "0"],
   ["0", "0", "0", "0", "0"],
@@ -92,7 +96,7 @@ function createListOfPuzzles() {
 
       li.addEventListener("click", (event) => {
         if (document.querySelector("table")) {
-          resetTimer();
+          timer.resetTimer();
           resetGame();
           resetCells();
 
@@ -111,13 +115,13 @@ function createListOfPuzzles() {
         currentPuzzleId = filteredPuzzles[j].id;
         let resetButton = createResetButton();
         let saveButton = createSaveButton();
-        let timer = createTimer();
+        let timerHTML = createTimer();
 
         addition.classList.add("sidebar");
         addition.append(resetButton, saveButton);
 
         timerDiv.classList.add("timer");
-        timerDiv.append(timer);
+        timerDiv.append(timerHTML);
 
         div.classList.add("main_playground-box");
         div.append(timerDiv, table, addition);
@@ -180,7 +184,7 @@ function createTable(puzzle) {
           td.classList.add("xCell");
         }
         td.addEventListener("click", () => {
-          startTimer();
+          timer.startTimer();
           td.classList.remove("xCell");
 
           //   SOUND EFFECTS
@@ -202,14 +206,14 @@ function createTable(puzzle) {
           let result = checkResult(puzzle);
           if (result) {
             let sound = new Audio("./sounds/win.mp3");
-            stopTimer();
+            timer.stopTimer();
             showPopup();
             sound.play();
           }
         });
 
         td.addEventListener("contextmenu", (event) => {
-          startTimer();
+          timer.startTimer();
           event.preventDefault();
 
           if (progress[i - topCluesHeight][j - leftCluesWidth] === "y") {
@@ -231,7 +235,7 @@ function createTable(puzzle) {
 
           let result = checkResult(puzzle);
           if (result) {
-            stopTimer();
+            timer.stopTimer();
             showPopup();
           }
         });
@@ -257,7 +261,7 @@ function checkResult(puzzle) {
 
 function showPopup() {
   let popup = document.querySelector(".main_pop-up");
-  let seconds = Math.floor(elapsedTime / 1000);
+  let seconds = Math.floor(timer.elapsedTime / 1000);
 
   popup.classList.remove("hidden");
   document.querySelector(".main_pop-up__note").innerHTML =
@@ -282,7 +286,7 @@ function createResetButton() {
   div.textContent = "Reset game";
 
   resetButton.addEventListener("click", () => {
-    resetTimer();
+    timer.resetTimer();
     resetGame();
     resetCells();
   });
@@ -343,30 +347,8 @@ function createTimer() {
   return paragraph;
 }
 
-function startTimer() {
-  if (!stopwatchInterval) {
-    stopwatchInterval = setInterval(updateStopwatch, 1000);
-  }
-}
-
-function updateStopwatch() {
-  elapsedTime += 1000;
-  document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime);
-}
-
 function pad(number) {
   return (number < 10 ? "0" : "") + number;
-}
-
-function stopTimer() {
-  clearInterval(stopwatchInterval);
-  stopwatchInterval = null;
-}
-
-function resetTimer() {
-  elapsedTime = 0;
-  document.getElementById("stopwatch").innerHTML = "00:00";
-  stopTimer();
 }
 
 function formatTime(timePeriod) {
@@ -378,7 +360,7 @@ function formatTime(timePeriod) {
 
 function saveCurrentProgress(gameProgress) {
   localStorage.setItem("progress", JSON.stringify(gameProgress));
-  localStorage.setItem("elapsedTime", elapsedTime);
+  localStorage.setItem("elapsedTime", timer.elapsedTime);
   localStorage.setItem("currentPuzzleId", currentPuzzleId);
 }
 
@@ -386,8 +368,8 @@ function getCurrentProgress() {
   progress = JSON.parse(localStorage.getItem("progress"));
   currentPuzzleId = localStorage.getItem("currentPuzzleId");
 
-  elapsedTime = Number(localStorage.getItem("elapsedTime"));
-  startTimer();
+  timer.elapsedTime = Number(localStorage.getItem("elapsedTime"));
+  timer.startTimer();
 
   // CREATE NEW PUZZLE
   if (document.querySelector("table")) {
@@ -403,7 +385,7 @@ function getCurrentProgress() {
 
   let resetButton = createResetButton();
   let saveButton = createSaveButton();
-  let timer = createTimer();
+  let timerHTML = createTimer();
 
   let filteredPuzzle = puzzles.filter(
     (puzzle) => puzzle.id === currentPuzzleId
@@ -416,7 +398,7 @@ function getCurrentProgress() {
   addition.append(resetButton, saveButton);
 
   timerDiv.classList.add("timer");
-  timerDiv.append(timer);
+  timerDiv.append(timerHTML);
 
   div.classList.add("main_playground-box");
   div.append(timerDiv, table, addition);
