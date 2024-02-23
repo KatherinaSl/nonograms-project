@@ -1,19 +1,13 @@
 import puzzles from "./puzzles.json" assert { type: "json" };
 import Timer from "./timer.js";
+import Game from "./game.js";
 
 const timer = new Timer(
   (elapsedTime) =>
     (document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime))
 );
 
-let currentPuzzleId;
-let progress = [
-  ["0", "0", "0", "0", "0"],
-  ["0", "0", "0", "0", "0"],
-  ["0", "0", "0", "0", "0"],
-  ["0", "0", "0", "0", "0"],
-  ["0", "0", "0", "0", "0"],
-];
+let game = new Game();
 
 let listOfPuzzles = {
   0: "Basic level (5x5)",
@@ -64,6 +58,12 @@ function createElements() {
   document.querySelector("body").append(header, main);
 }
 
+function createHTMLElement(tagName, className) {
+  const element = document.createElement(tagName);
+  element.classList.add(className);
+  return element;
+}
+
 createElements();
 
 function createListOfPuzzles() {
@@ -92,6 +92,18 @@ function createListOfPuzzles() {
   }
 
   return flex;
+}
+
+function listItemLeftClickHandler(event) {
+  if (document.querySelector("table")) {
+    timer.resetTimer();
+    game.reset();
+    resetCells();
+    removePlayground();
+  }
+  let puzzle = getPuzzleById(event.target.id);
+  game.start(puzzle);
+  createPlayground(puzzle);
 }
 
 function createTable(puzzle) {
@@ -126,13 +138,15 @@ function createTable(puzzle) {
 
       //playground
       if (i >= topCluesHeight && j >= leftCluesWidth) {
+        let x = j - leftCluesWidth;
+        let y = i - topCluesHeight;
         td.classList.add("playgroundCell");
-        td.setAttribute("x", j - leftCluesWidth);
-        td.setAttribute("y", i - topCluesHeight);
+        td.setAttribute("x", x);
+        td.setAttribute("y", y);
 
-        if (progress[i - topCluesHeight][j - leftCluesWidth] === "x") {
+        if (game.isCellSelected(x, y)) {
           td.classList.add("selectedCell");
-        } else if (progress[i - topCluesHeight][j - leftCluesWidth] === "y") {
+        } else if (game.isCellCrossed(x, y)) {
           td.classList.add("xCell");
         }
         td.addEventListener("click", playgroundLeftClickHandler);
@@ -143,18 +157,66 @@ function createTable(puzzle) {
   return table;
 }
 
-function checkResult(puzzle) {
-  let result = true;
-  for (let i = 0; i < puzzle.solution.length; i++) {
-    for (let j = 0; j < puzzle.solution[i].length; j++) {
-      if (
-        isCellSelected(progress[i][j]) !== isCellSelected(puzzle.solution[i][j])
-      ) {
-        result = false;
-      }
-    }
+function playgroundLeftClickHandler(event) {
+  let td = event.target;
+  let x = td.getAttribute("x");
+  let y = td.getAttribute("y");
+
+  timer.startTimer();
+  td.classList.remove("xCell");
+
+  if (game.isCellSelected(x, y)) {
+    game.resetCell(x, y);
+    td.classList.remove("selectedCell");
+  } else {
+    game.selectCell(x, y);
+    td.classList.add("selectedCell");
   }
-  return result;
+
+  if (td.classList.contains("selectedCell")) {
+    playSound("correct-choice");
+  } else {
+    playSound("whiteCell");
+  }
+
+  validateWinning();
+}
+
+function playgroundRightClickHandler(event) {
+  let td = event.target;
+  let x = td.getAttribute("x");
+  let y = td.getAttribute("y");
+
+  timer.startTimer();
+  event.preventDefault();
+
+  if (game.isCellCrossed(x, y)) {
+    game.resetCell(x, y);
+    td.classList.remove("xCell");
+  } else {
+    game.crossCell(x, y);
+    td.classList.add("xCell");
+  }
+
+  td.classList.remove("selectedCell");
+
+  if (td.classList.contains("xCell")) {
+    playSound("xcell");
+  } else {
+    playSound("whiteCell");
+  }
+
+  validateWinning();
+}
+
+function validateWinning() {
+  let result = game.checkResult();
+  if (result) {
+    let sound = new Audio("./sounds/win.mp3");
+    timer.stopTimer();
+    showPopup();
+    sound.play();
+  }
 }
 
 function showPopup() {
@@ -164,6 +226,29 @@ function showPopup() {
   popup.classList.remove("hidden");
   document.querySelector(".main_pop-up__note").innerHTML =
     "Great! You have solved the nonogram in " + seconds + " seconds!";
+}
+
+function createPlayground(puzzle) {
+  const div = createHTMLElement("div", "main_playground-box");
+  const addition = createHTMLElement("div", "sidebar");
+  const timerDiv = createHTMLElement("div", "timer");
+
+  let resetButton = createResetButton();
+  let saveButton = createSaveButton();
+  let timerHTML = createTimer();
+  let currentPuzzles = document.querySelectorAll(".currentPuzzle");
+
+  let table = createTable(puzzle);
+
+  addition.append(resetButton, saveButton);
+  timerDiv.append(timerHTML);
+  div.append(timerDiv, table, addition);
+
+  for (let puzzle of currentPuzzles) {
+    puzzle.classList.remove("currentPuzzle");
+  }
+  document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
+  document.querySelector(".main_playground-area").append(div);
 }
 
 document.addEventListener("click", (event) => {
@@ -177,6 +262,14 @@ document.addEventListener("click", (event) => {
   }
 });
 
+function resetCells() {
+  let cells = document.querySelectorAll(".playgroundCell");
+  for (let cell of cells) {
+    cell.classList.remove("xCell");
+    cell.classList.remove("selectedCell");
+  }
+}
+
 function createResetButton() {
   const resetButton = document.createElement("button");
   const div = document.createElement("div");
@@ -185,18 +278,12 @@ function createResetButton() {
 
   resetButton.addEventListener("click", () => {
     timer.resetTimer();
-    resetGame();
+    game.reset();
     resetCells();
   });
 
   resetButton.append(div);
   return resetButton;
-}
-
-function resetGame() {
-  for (let i = 0; i < progress.length; i++) {
-    progress[i].fill("0");
-  }
 }
 
 function createSaveButton() {
@@ -206,7 +293,7 @@ function createSaveButton() {
   div.textContent = "Save game";
 
   div.addEventListener("click", () => {
-    saveCurrentProgress(progress);
+    saveCurrentProgress();
   });
 
   saveButton.append(div);
@@ -232,21 +319,12 @@ function playSound(soundName) {
   sound.play();
 }
 
-function isCellSelected(cell) {
-  return cell === "x";
-}
-
-// timer
 function createTimer() {
   let paragraph = document.createElement("p");
   paragraph.textContent = "00:00";
   paragraph.id = "stopwatch";
 
   return paragraph;
-}
-
-function pad(number) {
-  return (number < 10 ? "0" : "") + number;
 }
 
 function formatTime(timePeriod) {
@@ -256,115 +334,29 @@ function formatTime(timePeriod) {
   return displayTime;
 }
 
-function saveCurrentProgress(gameProgress) {
-  localStorage.setItem("progress", JSON.stringify(gameProgress));
+function pad(number) {
+  return (number < 10 ? "0" : "") + number;
+}
+
+function saveCurrentProgress() {
+  localStorage.setItem("game", game.stringify());
   localStorage.setItem("elapsedTime", timer.elapsedTime);
-  localStorage.setItem("currentPuzzleId", currentPuzzleId);
 }
 
 function getCurrentProgress() {
-  progress = JSON.parse(localStorage.getItem("progress"));
-  currentPuzzleId = localStorage.getItem("currentPuzzleId");
-
+  game.restoreFromJson(localStorage.getItem("game"));
   timer.elapsedTime = Number(localStorage.getItem("elapsedTime"));
   timer.startTimer();
 
   if (document.querySelector("table")) {
     removePlayground();
   }
-  createPlayground(currentPuzzleId);
-}
-
-function resetCells() {
-  let cells = document.querySelectorAll(".playgroundCell");
-  for (let cell of cells) {
-    cell.classList.remove("xCell");
-    cell.classList.remove("selectedCell");
-  }
-}
-
-function playgroundLeftClickHandler(event) {
-  let td = event.target;
-  let x = td.getAttribute("x");
-  let y = td.getAttribute("y");
-
-  timer.startTimer();
-  td.classList.remove("xCell");
-
-  if (progress[y][x] === "x") {
-    progress[y][x] = "0";
-    td.classList.remove("selectedCell");
-  } else {
-    progress[y][x] = "x";
-    td.classList.add("selectedCell");
-  }
-
-  if (td.classList.contains("selectedCell")) {
-    playSound("correct-choice");
-  } else {
-    playSound("whiteCell");
-  }
-
-  validateWinning();
+  let puzzle = getPuzzleById(game.getPuzzleId());
+  createPlayground(puzzle);
 }
 
 function getPuzzleById(id) {
   return puzzles.filter((puzzle) => puzzle.id === id)[0];
-}
-
-function playgroundRightClickHandler(event) {
-  let td = event.target;
-  let x = td.getAttribute("x");
-  let y = td.getAttribute("y");
-
-  timer.startTimer();
-  event.preventDefault();
-
-  if (progress[y][x] === "y") {
-    progress[y][x] = "0";
-    td.classList.remove("xCell");
-  } else {
-    progress[y][x] = "y";
-    td.classList.add("xCell");
-  }
-
-  td.classList.remove("selectedCell");
-
-  if (td.classList.contains("xCell")) {
-    playSound("xcell");
-  } else {
-    playSound("whiteCell");
-  }
-
-  validateWinning();
-}
-
-function validateWinning() {
-  let puzzle = getPuzzleById(currentPuzzleId);
-  let result = checkResult(puzzle);
-  if (result) {
-    let sound = new Audio("./sounds/win.mp3");
-    timer.stopTimer();
-    showPopup();
-    sound.play();
-  }
-}
-
-function listItemLeftClickHandler(event) {
-  if (document.querySelector("table")) {
-    timer.resetTimer();
-    resetGame();
-    resetCells();
-    removePlayground();
-  }
-  currentPuzzleId = event.target.id;
-  createPlayground(currentPuzzleId);
-}
-
-function createHTMLElement(tagName, className) {
-  const element = document.createElement(tagName);
-  element.classList.add(className);
-  return element;
 }
 
 function removePlayground() {
@@ -372,28 +364,4 @@ function removePlayground() {
   document.querySelector("#resetButton").remove();
   document.querySelector("#saveButton").remove();
   document.querySelector("#stopwatch").remove();
-}
-
-function createPlayground(puzzleId) {
-  const div = createHTMLElement("div", "main_playground-box");
-  const addition = createHTMLElement("div", "sidebar");
-  const timerDiv = createHTMLElement("div", "timer");
-
-  let resetButton = createResetButton();
-  let saveButton = createSaveButton();
-  let timerHTML = createTimer();
-  let currentPuzzles = document.querySelectorAll(".currentPuzzle");
-
-  let filteredPuzzle = getPuzzleById(puzzleId);
-  let table = createTable(filteredPuzzle);
-
-  addition.append(resetButton, saveButton);
-  timerDiv.append(timerHTML);
-  div.append(timerDiv, table, addition);
-
-  for (let puzzle of currentPuzzles) {
-    puzzle.classList.remove("currentPuzzle");
-  }
-  document.querySelector("#" + currentPuzzleId).classList.add("currentPuzzle");
-  document.querySelector(".main_playground-area").append(div);
 }
