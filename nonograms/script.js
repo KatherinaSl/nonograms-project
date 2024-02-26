@@ -7,6 +7,8 @@ const timer = new Timer(
     (document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime))
 );
 
+// const BORDER_STYLE = "5px solid black";
+
 let game = new Game();
 
 let listOfPuzzles = {
@@ -17,10 +19,28 @@ let listOfPuzzles = {
 
 function createElements() {
   const header = createHTMLElement("header", "header");
+  const switchButton = createHTMLElement("div", "switch");
+
+  const input = createHTMLElement("input", "checkbox");
+  input.type = "checkbox";
+  input.id = "checkbox";
+
+  const label = createHTMLElement("label", "checkbox-label");
+  label.setAttribute("for", "checkbox");
+
+  const moonImg = createHTMLElement("img", "moon");
+  moonImg.src = "./assets/moon.png";
+  const sunImg = createHTMLElement("img", "sun");
+  sunImg.src = "./assets/sun.png";
+
+  const span = createHTMLElement("span", "ball");
+  label.append(sunImg, moonImg, span);
+  switchButton.append(input, label);
+
   const title = createHTMLElement("h1", "header__title");
   title.textContent = "Nonograms";
 
-  header.append(title);
+  header.append(switchButton, title);
 
   const main = createHTMLElement("main", "main");
   const basicRules = createHTMLElement("div", "main_game-rules");
@@ -66,6 +86,10 @@ function createHTMLElement(tagName, className) {
 
 createElements();
 
+document.getElementById("checkbox").addEventListener("change", () => {
+  document.body.classList.toggle("dark");
+});
+
 function createListOfPuzzles() {
   const flex = document.createElement("div");
   flex.classList.add("main_flex-container");
@@ -101,6 +125,7 @@ function listItemLeftClickHandler(event) {
     resetCells();
     removePlayground();
   }
+
   let puzzle = getPuzzleById(event.target.id);
   game.start(puzzle);
   createPlayground(puzzle);
@@ -147,8 +172,10 @@ function createTable(puzzle) {
         if (game.isCellSelected(x, y)) {
           td.classList.add("selectedCell");
         } else if (game.isCellCrossed(x, y)) {
-          td.classList.add("xCell");
+          td.innerHTML = "X";
         }
+
+        setBorders(td);
         td.addEventListener("click", playgroundLeftClickHandler);
         td.addEventListener("contextmenu", playgroundRightClickHandler);
       }
@@ -157,13 +184,31 @@ function createTable(puzzle) {
   return table;
 }
 
+function setBorders(td) {
+  let y = td.getAttribute("y");
+  let x = td.getAttribute("x");
+
+  if (y == 0) {
+    td.classList.add("borderTop");
+  }
+  if (y % 5 === 4) {
+    td.classList.add("borderBottom");
+  }
+  if (x == 0) {
+    td.classList.add("borderLeft");
+  }
+  if (x % 5 === 4) {
+    td.classList.add("borderRight");
+  }
+}
+
 function playgroundLeftClickHandler(event) {
   let td = event.target;
   let x = td.getAttribute("x");
   let y = td.getAttribute("y");
 
   timer.startTimer();
-  td.classList.remove("xCell");
+  td.innerHTML = "";
 
   if (game.isCellSelected(x, y)) {
     game.resetCell(x, y);
@@ -192,15 +237,15 @@ function playgroundRightClickHandler(event) {
 
   if (game.isCellCrossed(x, y)) {
     game.resetCell(x, y);
-    td.classList.remove("xCell");
+    td.innerHTML = "";
   } else {
     game.crossCell(x, y);
-    td.classList.add("xCell");
+    td.innerHTML = "X";
   }
 
   td.classList.remove("selectedCell");
 
-  if (td.classList.contains("xCell")) {
+  if (td.innerHTML === "X") {
     playSound("xcell");
   } else {
     playSound("whiteCell");
@@ -265,7 +310,7 @@ document.addEventListener("click", (event) => {
 function resetCells() {
   let cells = document.querySelectorAll(".playgroundCell");
   for (let cell of cells) {
-    cell.classList.remove("xCell");
+    cell.innerHTML = "";
     cell.classList.remove("selectedCell");
   }
 }
@@ -364,4 +409,7 @@ function removePlayground() {
   document.querySelector("#resetButton").remove();
   document.querySelector("#saveButton").remove();
   document.querySelector("#stopwatch").remove();
+  if (document.querySelectorAll(".main_playground-box").length !== 0) {
+    document.querySelector(".main_playground-box").remove();
+  }
 }

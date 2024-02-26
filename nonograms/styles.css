@@ -1,3 +1,5 @@
+@import url(https://fontawesome.com/icons/moon?f=classic&s=solid);
+
 * {
   margin: 0;
   padding: 0;
@@ -7,18 +9,133 @@
 body {
   background-image: url("./assets/miyazaki.jpg");
   background-size: cover;
+  transition: background-image 0.2s linear;
+}
+
+body.dark {
+  background-image: url("./assets/dark_theme.jpg");
+  background-size: cover;
+}
+
+body.dark .main_game-rules,
+body.dark .main_playground-area {
+  color: #ffffff;
+}
+
+body.dark .checkbox-label {
+  background-color: #2e38a9;
+}
+
+body.dark .header__title {
+  color: #717dff;
+}
+
+body.dark button {
+  background-color: #717dff;
+  border: 1px solid #717dff;
+}
+
+body.dark button:hover {
+  background-color: #fdf3f3;
+  box-shadow: 0 0 0 2px rgba(46, 56, 169);
+}
+
+body.dark li::marker,
+body.dark .currentPuzzle {
+  color: #717dff;
+}
+
+body.dark #stopwatch {
+  border: 2px solid #717dff;
+}
+
+body.dark .leftClueCell {
+  border-right: 1px solid #2e38a9;
+}
+
+body.dark .topClueCell {
+  border-bottom: 1px solid #2e38a9;
+}
+
+body.dark .playgroundCell {
+  color: #fdf3f3;
+}
+
+body.dark .playgroundCell {
+  border: 2px solid #2e38a9;
+  background-color: black;
+}
+
+body.dark .selectedCell {
+  background-color: #fdf3f3;
+}
+
+body.dark .borderBottom {
+  border-bottom: 5px solid #2e38a9;
+}
+body.dark .borderTop {
+  border-top: 5px solid #2e38a9;
+}
+body.dark .borderLeft {
+  border-left: 5px solid #2e38a9;
+}
+body.dark .borderRight {
+  border-right: 5px solid #2e38a9;
 }
 
 .header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   max-width: 1200px;
   padding: 20px;
-  margin: auto;
+  margin: 0;
+}
+
+.checkbox {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkbox-label {
+  background-color: #101010;
+  /* background-color: #1fb6b41f; */
+  /* background-color: #a69800; */
+  width: 60px;
+  height: 30px;
+  border-radius: 50px;
+  position: relative;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkbox-label > img {
+  width: 20px;
+}
+
+.checkbox-label .ball {
+  background-color: #ffffff;
+  width: 27px;
+  height: 27px;
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  border-radius: 50%;
+  transition: transform 0.2s linear;
+}
+
+.checkbox:checked + .checkbox-label .ball {
+  transform: translateX(32px);
 }
 
 .header__title {
+  margin-left: auto;
   font-size: 72px;
   font-family: "Playfair Display", serif;
-  color: #a69800;
+  color: #d9c700;
   text-align: center;
 }
 
@@ -75,51 +192,47 @@ li::marker {
   color: #a69800;
 }
 
-/*  */
 table {
+  display: flex;
+  align-self: center;
   border-collapse: collapse;
-  margin: 50px;
+  margin: 0 50px;
 }
 td {
   width: 40px;
   height: 40px;
   font-size: 150%;
 }
+
 tr {
   text-align: center;
 }
+
+.borderLeft {
+  border-left: 5px solid black;
+}
+.borderRight {
+  border-right: 5px solid black;
+}
+.borderTop {
+  border-top: 5px solid black;
+}
+.borderBottom {
+  border-bottom: 5px solid black;
+}
+
 .playgroundCell {
   border: 2px solid black;
   background-color: #fdf3f3;
   cursor: pointer;
-}
-
-td:nth-child(1 of .playgroundCell) {
-  border-left: 5px solid black;
-}
-
-td:nth-child(5n of .playgroundCell) {
-  border-right: 5px solid black;
-}
-
-/* fix  */
-tr:nth-child(3) td:nth-child(n + 1 of .playgroundCell) {
-  border-top: 5px solid black;
-}
-
-tr:nth-child(7n) td.playgroundCell {
-  border-bottom: 5px solid black;
+  color: red;
+  font-weight: 600;
+  font-size: 35px;
+  text-align: center;
 }
 
 .selectedCell {
   background-color: rgb(8, 8, 144);
-}
-
-.xCell {
-  background-image: url("./assets/xcross.gif");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .leftClueCell {
@@ -152,8 +265,6 @@ tr:nth-child(7n) td.playgroundCell {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* width: 30%;
-  height: 20%; */
   border-radius: 20px;
   background-color: #ffffff;
   background-position: bottom right;
@@ -183,10 +294,11 @@ tr:nth-child(7n) td.playgroundCell {
 
 /*RESET BUTTON*/
 button {
-  margin: auto;
+  margin: 5px;
+  justify-content: center;
   border-radius: 50px;
-  background-color: #a69800;
-  border: 1px solid #a69800;
+  background-color: #d9c700;
+  border: 1px solid #d9c700;
   cursor: pointer;
 }
 
@@ -205,6 +317,7 @@ button div {
   background-color: #a69800; */
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .sidebar p {
@@ -214,6 +327,7 @@ button div {
 }
 
 .main_playground-box {
+  justify-content: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -228,6 +342,6 @@ button div {
 
 #stopwatch {
   padding: 10px;
-  border: 2px solid #a69800;
+  border: 2px solid #d9c700;
   border-radius: 10px;
 }
