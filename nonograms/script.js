@@ -1,13 +1,15 @@
 import puzzles from "./puzzles.json" assert { type: "json" };
 import Timer from "./timer.js";
 import Game from "./game.js";
+import LastScoresStorage from "./lastScoresStorage.js";
 
-const timer = new Timer(
-  (elapsedTime) =>
-    (document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime))
-);
+const timer = new Timer((elapsedTime) => {
+  if (document.getElementById("stopwatch")) {
+    document.getElementById("stopwatch").innerHTML = formatTime(elapsedTime);
+  }
+});
 
-// const BORDER_STYLE = "5px solid black";
+const lastScoresStorage = new LastScoresStorage();
 
 let game = new Game();
 
@@ -48,17 +50,31 @@ function createElements() {
 
   const paragraph = document.createElement("p");
   paragraph.textContent =
-    "Numbers on the side (later clues, sometimes called number bars) represent\r\nhow many squares you need to color (i.e. colored squares, later boxes) in that line.\r\nBetween those boxes there must be at least one empty space (later cross).";
+    "Numbers on the side (later clues, sometimes called number bars) represent how many squares you need to color (i.e. colored squares, later boxes) in that line. Between those boxes there must be at least one empty space (later cross).";
+
   basicRules.append(paragraph);
 
   const playground = createHTMLElement("div", "main_playground-area");
 
-  let continueButton = createContinueButton();
-
   const subtitle = document.createElement("h2");
   subtitle.textContent = "Nonogram Puzzles";
 
-  let ul = createListOfPuzzles();
+  // MENU
+  const menu = createHTMLElement("div", "main_menu");
+  // let flexContainer = createListOfPuzzles();
+  // flexContainer.style.visibility = "hidden";
+  const buttonArea = createHTMLElement("div", "buttonArea");
+  let continueButton = createContinueButton();
+  let randomButton = createRadomButton();
+  let puzzlesButton = createListOfPuzzlesButton();
+  buttonArea.append(continueButton, randomButton, puzzlesButton);
+
+  const table = createScoreTable();
+
+  menu.append(buttonArea, table);
+  // menu.classList.add("hidden");
+
+  // menu.append(continueButton, randomButton, puzzlesButton);
 
   // pop up
   const popup = createHTMLElement("div", "main_pop-up");
@@ -73,9 +89,15 @@ function createElements() {
   content.append(img, notification);
 
   popup.append(content);
-  playground.append(subtitle, ul, popup);
-  main.append(basicRules, continueButton, playground);
-  document.querySelector("body").append(header, main);
+  playground.append(subtitle, menu, popup);
+  main.append(basicRules, playground);
+
+  const footer = createHTMLElement("footer", "footer");
+  const backToMenu = createHTMLElement("p", "paragraph");
+  backToMenu.textContent = "Back to menu";
+  footer.append(backToMenu);
+
+  document.querySelector("body").append(header, main, footer);
 }
 
 function createHTMLElement(tagName, className) {
@@ -86,8 +108,61 @@ function createHTMLElement(tagName, className) {
 
 createElements();
 
-document.getElementById("checkbox").addEventListener("change", () => {
+function checkMode() {
+  let lightMode = localStorage.getItem("lightMode");
+  console.log("lightMode is " + lightMode);
+  if (lightMode === "false") {
+    document.body.classList.toggle("dark");
+    document.getElementById("checkbox").checked = true;
+  }
+}
+
+checkMode();
+
+function createListOfPuzzlesButton() {
+  const puzzlesButton = document.createElement("button");
+  const div = document.createElement("div");
+  puzzlesButton.id = "puzzlesButton";
+  div.textContent = "Choose puzzle";
+
+  div.addEventListener("click", () => {
+    let flex = createListOfPuzzles();
+    document.querySelector(".buttonArea").remove();
+    document.querySelector(".main_menu").append(flex);
+    document.querySelector(".scoreTable").remove();
+  });
+
+  puzzlesButton.append(div);
+  return puzzlesButton;
+}
+
+function createRadomButton() {
+  const radomButton = document.createElement("button");
+  const div = document.createElement("div");
+  radomButton.id = "radomButton";
+  div.textContent = "Random puzzle";
+
+  div.addEventListener("click", () => {
+    let puzzle = getRandomPuzzle();
+    // console.log(puzzle);
+    document.querySelector(".buttonArea").remove();
+    document.querySelector(".scoreTable").remove();
+    game.start(puzzle);
+    createPlayground(puzzle);
+  });
+
+  radomButton.append(div);
+  return radomButton;
+}
+
+function getRandomPuzzle() {
+  return puzzles[Math.round(Math.random() * puzzles.length)];
+}
+
+document.getElementById("checkbox").addEventListener("change", (event) => {
   document.body.classList.toggle("dark");
+  console.log("event target " + !event.target.checked);
+  localStorage.setItem("lightMode", !event.target.checked);
 });
 
 function createListOfPuzzles() {
@@ -105,7 +180,7 @@ function createListOfPuzzles() {
     for (let j = 0; j < filteredPuzzles.length; j++) {
       let li = document.createElement("li");
 
-      li.textContent = "Puzzle " + (j + 1);
+      li.textContent = filteredPuzzles[j].name;
       li.id = filteredPuzzles[j].id;
 
       li.addEventListener("click", listItemLeftClickHandler);
@@ -119,9 +194,11 @@ function createListOfPuzzles() {
 }
 
 function listItemLeftClickHandler(event) {
-  if (document.querySelector("table")) {
-    timer.resetTimer();
-    game.reset();
+  timer.resetTimer();
+  game.reset();
+  if (document.querySelector(".puzzleTable")) {
+    // timer.resetTimer();
+    // game.reset();
     resetCells();
     removePlayground();
   }
@@ -129,10 +206,13 @@ function listItemLeftClickHandler(event) {
   let puzzle = getPuzzleById(event.target.id);
   game.start(puzzle);
   createPlayground(puzzle);
+  document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
 }
 
 function createTable(puzzle) {
-  const table = document.createElement("table");
+  const table = createHTMLElement("table", "puzzleTable");
+  let caption = document.createElement("caption");
+
   let leftCluesWidth = puzzle.leftClues[0].length;
   let topCluesHeight = puzzle.topClues.length;
 
@@ -181,6 +261,10 @@ function createTable(puzzle) {
       }
     }
   }
+
+  caption.textContent = "" + puzzle.name;
+
+  table.append(caption);
   return table;
 }
 
@@ -261,6 +345,8 @@ function validateWinning() {
     timer.stopTimer();
     showPopup();
     sound.play();
+    let puzzle = getPuzzleById(game.getPuzzleId());
+    lastScoresStorage.save(puzzle, timer.elapsedTime);
   }
 }
 
@@ -269,6 +355,7 @@ function showPopup() {
   let seconds = Math.floor(timer.elapsedTime / 1000);
 
   popup.classList.remove("hidden");
+  document.querySelector("body").classList.add("fixed-position");
   document.querySelector(".main_pop-up__note").innerHTML =
     "Great! You have solved the nonogram in " + seconds + " seconds!";
 }
@@ -280,19 +367,24 @@ function createPlayground(puzzle) {
 
   let resetButton = createResetButton();
   let saveButton = createSaveButton();
+  let solutionButton = createSolutionButton();
   let timerHTML = createTimer();
   let currentPuzzles = document.querySelectorAll(".currentPuzzle");
 
   let table = createTable(puzzle);
 
-  addition.append(resetButton, saveButton);
+  addition.append(resetButton, saveButton, solutionButton);
   timerDiv.append(timerHTML);
   div.append(timerDiv, table, addition);
 
   for (let puzzle of currentPuzzles) {
     puzzle.classList.remove("currentPuzzle");
   }
-  document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
+
+  // currentPuzzleId = localStorage.getItem("currentPuzzleId");
+  // document.querySelector("#" + currentPuzzleId).classList.add("currentPuzzle");
+
+  // document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
   document.querySelector(".main_playground-area").append(div);
 }
 
@@ -301,11 +393,14 @@ document.addEventListener("click", (event) => {
   if (
     !popup.classList.contains("hidden") &&
     event.target.closest(".main_pop-up__content") === null &&
-    event.target.closest("table") === null
+    event.target.closest(".puzzleTable") === null
   ) {
     popup.classList.add("hidden");
+    document.querySelector("body").classList.remove("fixed-position");
   }
 });
+
+document.addEventListener("click", (event) => {});
 
 function resetCells() {
   let cells = document.querySelectorAll(".playgroundCell");
@@ -325,6 +420,11 @@ function createResetButton() {
     timer.resetTimer();
     game.reset();
     resetCells();
+
+    document.querySelector("#saveButton").removeAttribute("disabled");
+    document.querySelector("#saveButton").style.backgroundColor =
+      "rgb(217, 199, 0)";
+    document.querySelector("#saveButton").style.color = "rgb(0, 0, 0)";
   });
 
   resetButton.append(div);
@@ -333,6 +433,7 @@ function createResetButton() {
 
 function createSaveButton() {
   const saveButton = document.createElement("button");
+  saveButton.removeAttribute("disabled");
   const div = document.createElement("div");
   saveButton.id = "saveButton";
   div.textContent = "Save game";
@@ -345,6 +446,33 @@ function createSaveButton() {
   return saveButton;
 }
 
+function createSolutionButton() {
+  const solutionButton = document.createElement("button");
+  const div = document.createElement("div");
+  solutionButton.id = "solutionButton";
+  div.textContent = "Solution";
+
+  div.addEventListener("click", () => {
+    game.solve();
+    // document.querySelector("#saveButton").disable;
+    timer.resetTimer();
+    if (document.querySelector(".puzzleTable")) {
+      removePlayground();
+    }
+
+    let puzzle = getPuzzleById(game.getPuzzleId());
+    createPlayground(puzzle);
+    // document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
+    document.querySelector("#saveButton").setAttribute("disabled", true);
+    document.querySelector("#saveButton").style.backgroundColor =
+      "rgb(241, 241, 241, 0.6)";
+    document.querySelector("#saveButton").style.color = "rgb(241, 241, 241)";
+  });
+
+  solutionButton.append(div);
+  return solutionButton;
+}
+
 function createContinueButton() {
   const saveButton = document.createElement("button");
   const div = document.createElement("div");
@@ -353,6 +481,8 @@ function createContinueButton() {
 
   div.addEventListener("click", () => {
     getCurrentProgress();
+    document.querySelector(".buttonArea").remove();
+    document.querySelector(".scoreTable").remove();
   });
 
   saveButton.append(div);
@@ -390,14 +520,18 @@ function saveCurrentProgress() {
 
 function getCurrentProgress() {
   game.restoreFromJson(localStorage.getItem("game"));
+  // currentPuzzleId = localStorage.getItem("currentPuzzleId");
+
+  let puzzle = getPuzzleById(game.getPuzzleId());
+  createPlayground(puzzle);
+  // document.querySelector("#" + currentPuzzleId).classList.add("currentPuzzle");
+
   timer.elapsedTime = Number(localStorage.getItem("elapsedTime"));
   timer.startTimer();
 
-  if (document.querySelector("table")) {
-    removePlayground();
-  }
-  let puzzle = getPuzzleById(game.getPuzzleId());
-  createPlayground(puzzle);
+  // if (document.querySelector("table")) {
+  //   removePlayground();
+  // }
 }
 
 function getPuzzleById(id) {
@@ -405,11 +539,69 @@ function getPuzzleById(id) {
 }
 
 function removePlayground() {
-  document.querySelector("table").remove();
+  document.querySelector(".puzzleTable").remove();
   document.querySelector("#resetButton").remove();
   document.querySelector("#saveButton").remove();
   document.querySelector("#stopwatch").remove();
   if (document.querySelectorAll(".main_playground-box").length !== 0) {
     document.querySelector(".main_playground-box").remove();
   }
+}
+
+document.querySelector(".paragraph").addEventListener("click", () => {
+  if (document.querySelector(".main_flex-container")) {
+    document.querySelector(".main_flex-container").remove();
+  }
+  if (document.querySelector(".main_playground-box")) {
+    document.querySelector(".main_playground-box").remove();
+  }
+
+  if (document.querySelector(".scoreTable")) {
+    document.querySelector(".scoreTable").remove;
+  }
+
+  if (
+    !document.querySelector(".buttonArea") &&
+    !document.querySelector(".scoreTable")
+  ) {
+    const buttonArea = createHTMLElement("div", "buttonArea");
+    let continueButton = createContinueButton();
+    let randomButton = createRadomButton();
+    let puzzlesButton = createListOfPuzzlesButton();
+    let table = createScoreTable();
+    buttonArea.append(continueButton, randomButton, puzzlesButton);
+    document.querySelector(".main_menu").append(buttonArea, table);
+  }
+});
+
+function createScoreTable() {
+  const table = createHTMLElement("table", "scoreTable");
+  let results = lastScoresStorage.getResults();
+  const caption = document.createElement("caption");
+  caption.textContent = "Score Table";
+
+  const rowNumbs = results.length;
+  let frontRow = document.createElement("tr");
+  let titleTime = document.createElement("td");
+  titleTime.textContent = "Time";
+  let titleLevel = document.createElement("td");
+  titleLevel.textContent = "Level";
+  let titleName = document.createElement("td");
+  titleName.textContent = "Name";
+  frontRow.append(titleTime, titleLevel, titleName);
+  table.append(caption, frontRow);
+
+  for (let i = 0; i < rowNumbs; i++) {
+    const tr = table.insertRow();
+    let tdTime = document.createElement("td");
+    tdTime.textContent = formatTime(results[i].time);
+    let tdLevel = document.createElement("td");
+    tdLevel.textContent = results[i].level;
+    let tdName = document.createElement("td");
+    tdName.textContent = results[i].name;
+
+    tr.append(tdTime, tdLevel, tdName);
+  }
+
+  return table;
 }

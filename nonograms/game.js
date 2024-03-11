@@ -4,6 +4,8 @@ export default class Game {
   constructor() {}
 
   stringify() {
+    this.checkPuzzleInit();
+
     return JSON.stringify({
       ["progress"]: this.#progress,
       ["puzzle"]: this.#puzzle,
@@ -16,7 +18,13 @@ export default class Game {
     this.#puzzle = object.puzzle;
   }
 
+  solve() {
+    this.checkPuzzleInit();
+    this.#progress = JSON.parse(JSON.stringify(this.#puzzle.solution));
+  }
+
   getPuzzleId() {
+    this.checkPuzzleInit();
     return this.#puzzle.id;
   }
 
@@ -39,6 +47,8 @@ export default class Game {
   }
 
   checkResult() {
+    this.checkPuzzleInit();
+
     if (!this.#puzzle) {
       return false;
     }
@@ -58,23 +68,34 @@ export default class Game {
   }
 
   resetCell(x, y) {
+    this.checkPuzzleInit();
     this.#progress[y][x] = "0";
   }
 
   selectCell(x, y) {
+    this.checkPuzzleInit();
     this.#progress[y][x] = "x";
   }
 
   crossCell(x, y) {
+    this.checkPuzzleInit();
     this.#progress[y][x] = "y";
   }
 
   isCellSelected(x, y) {
+    this.checkPuzzleInit();
     return this.#progress[y][x] === "x";
   }
 
   isCellCrossed(x, y) {
+    this.checkPuzzleInit();
     return this.#progress[y][x] === "y";
+  }
+
+  checkPuzzleInit() {
+    if (!this.#progress || !this.#puzzle) {
+      throw "Puzzle is not initialized.";
+    }
   }
 }
 
