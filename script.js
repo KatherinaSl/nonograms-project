@@ -39,13 +39,13 @@ function createElements() {
   label.append(sunImg, moonImg, span);
   switchButton.append(input, label);
 
-  const title = createHTMLElement("h1", "header__title");
+  const title = createHTMLElement("h1", "header_title");
   title.textContent = "Nonograms";
 
   header.append(switchButton, title);
 
   const main = createHTMLElement("main", "main");
-  const basicRules = createHTMLElement("div", "main_game-rules");
+  const basicRules = createHTMLElement("div", "main__game-rules");
   basicRules.textContent = "Basic rules";
 
   const paragraph = document.createElement("p");
@@ -54,16 +54,13 @@ function createElements() {
 
   basicRules.append(paragraph);
 
-  const playground = createHTMLElement("div", "main_playground-area");
+  const playground = createHTMLElement("div", "main__playground-area");
 
   const subtitle = document.createElement("h2");
   subtitle.textContent = "Nonogram Puzzles";
 
-  // MENU
-  const menu = createHTMLElement("div", "main_menu");
-  // let flexContainer = createListOfPuzzles();
-  // flexContainer.style.visibility = "hidden";
-  const buttonArea = createHTMLElement("div", "buttonArea");
+  const menu = createHTMLElement("div", "main__menu");
+  const buttonArea = createHTMLElement("div", "main__menu_buttonArea");
   let continueButton = createContinueButton();
   let randomButton = createRadomButton();
   let puzzlesButton = createListOfPuzzlesButton();
@@ -72,20 +69,15 @@ function createElements() {
   const table = createScoreTable();
 
   menu.append(buttonArea, table);
-  // menu.classList.add("hidden");
-
-  // menu.append(continueButton, randomButton, puzzlesButton);
-
-  // pop up
-  const popup = createHTMLElement("div", "main_pop-up");
+  const popup = createHTMLElement("div", "main__pop-up");
   popup.classList.add("hidden");
 
-  const notification = createHTMLElement("p", "main_pop-up__note");
+  const notification = createHTMLElement("p", "main__pop-up_note");
 
   const img = document.createElement("img");
   img.src = "./assets/totoro.gif";
 
-  const content = createHTMLElement("div", "main_pop-up__content");
+  const content = createHTMLElement("div", "main__pop-up_content");
   content.append(img, notification);
 
   popup.append(content);
@@ -93,7 +85,7 @@ function createElements() {
   main.append(basicRules, playground);
 
   const footer = createHTMLElement("footer", "footer");
-  const backToMenu = createHTMLElement("p", "paragraph");
+  const backToMenu = createHTMLElement("p", "footer__paragraph");
   backToMenu.textContent = "Back to menu";
   footer.append(backToMenu);
 
@@ -110,7 +102,6 @@ createElements();
 
 function checkMode() {
   let lightMode = localStorage.getItem("lightMode");
-  console.log("lightMode is " + lightMode);
   if (lightMode === "false") {
     document.body.classList.toggle("dark");
     document.getElementById("checkbox").checked = true;
@@ -127,9 +118,9 @@ function createListOfPuzzlesButton() {
 
   div.addEventListener("click", () => {
     let flex = createListOfPuzzles();
-    document.querySelector(".buttonArea").remove();
-    document.querySelector(".main_menu").append(flex);
-    document.querySelector(".scoreTable").remove();
+    document.querySelector(".main__menu_buttonArea").remove();
+    document.querySelector(".main__menu").append(flex);
+    document.querySelector(".main__menu_scoreTable").remove();
   });
 
   puzzlesButton.append(div);
@@ -144,9 +135,8 @@ function createRadomButton() {
 
   div.addEventListener("click", () => {
     let puzzle = getRandomPuzzle();
-    // console.log(puzzle);
-    document.querySelector(".buttonArea").remove();
-    document.querySelector(".scoreTable").remove();
+    document.querySelector(".main__menu_buttonArea").remove();
+    document.querySelector(".main__menu_scoreTable").remove();
     game.start(puzzle);
     createPlayground(puzzle);
   });
@@ -161,20 +151,19 @@ function getRandomPuzzle() {
 
 document.getElementById("checkbox").addEventListener("change", (event) => {
   document.body.classList.toggle("dark");
-  console.log("event target " + !event.target.checked);
   localStorage.setItem("lightMode", !event.target.checked);
 });
 
 function createListOfPuzzles() {
   const flex = document.createElement("div");
-  flex.classList.add("main_flex-container");
+  flex.classList.add("main__flex-container");
 
   for (let i = 0; i < Object.keys(listOfPuzzles).length; i++) {
     let flexBox = document.createElement("div");
     let filteredPuzzles = puzzles.filter((puzzle) => puzzle.level === i + 1);
     let ul = document.createElement("ul");
     ul.textContent = listOfPuzzles[i];
-    flexBox.classList.add("flex-box");
+    flexBox.classList.add("main__flex-container_flex-box");
     flexBox.append(ul);
 
     for (let j = 0; j < filteredPuzzles.length; j++) {
@@ -196,9 +185,7 @@ function createListOfPuzzles() {
 function listItemLeftClickHandler(event) {
   timer.resetTimer();
   game.reset();
-  if (document.querySelector(".puzzleTable")) {
-    // timer.resetTimer();
-    // game.reset();
+  if (document.querySelector(".main__playground-box_puzzleTable")) {
     resetCells();
     removePlayground();
   }
@@ -210,7 +197,7 @@ function listItemLeftClickHandler(event) {
 }
 
 function createTable(puzzle) {
-  const table = createHTMLElement("table", "puzzleTable");
+  const table = createHTMLElement("table", "main__playground-box_puzzleTable");
   let caption = document.createElement("caption");
 
   let leftCluesWidth = puzzle.leftClues[0].length;
@@ -351,19 +338,19 @@ function validateWinning() {
 }
 
 function showPopup() {
-  let popup = document.querySelector(".main_pop-up");
+  let popup = document.querySelector(".main__pop-up");
   let seconds = Math.floor(timer.elapsedTime / 1000);
 
   popup.classList.remove("hidden");
   document.querySelector("body").classList.add("fixed-position");
-  document.querySelector(".main_pop-up__note").innerHTML =
+  document.querySelector(".main__pop-up_note").innerHTML =
     "Great! You have solved the nonogram in " + seconds + " seconds!";
 }
 
 function createPlayground(puzzle) {
-  const div = createHTMLElement("div", "main_playground-box");
-  const addition = createHTMLElement("div", "sidebar");
-  const timerDiv = createHTMLElement("div", "timer");
+  const div = createHTMLElement("div", "main__playground-box");
+  const addition = createHTMLElement("div", "main__playground-box_sidebar");
+  const timerDiv = createHTMLElement("div", "main__playground-box_timer");
 
   let resetButton = createResetButton();
   let saveButton = createSaveButton();
@@ -381,19 +368,15 @@ function createPlayground(puzzle) {
     puzzle.classList.remove("currentPuzzle");
   }
 
-  // currentPuzzleId = localStorage.getItem("currentPuzzleId");
-  // document.querySelector("#" + currentPuzzleId).classList.add("currentPuzzle");
-
-  // document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
-  document.querySelector(".main_playground-area").append(div);
+  document.querySelector(".main__playground-area").append(div);
 }
 
 document.addEventListener("click", (event) => {
-  let popup = document.querySelector(".main_pop-up");
+  let popup = document.querySelector(".main__pop-up");
   if (
     !popup.classList.contains("hidden") &&
-    event.target.closest(".main_pop-up__content") === null &&
-    event.target.closest(".puzzleTable") === null
+    event.target.closest(".main__pop-up_content") === null &&
+    event.target.closest(".main__playground-box_puzzleTable") === null
   ) {
     popup.classList.add("hidden");
     document.querySelector("body").classList.remove("fixed-position");
@@ -454,15 +437,13 @@ function createSolutionButton() {
 
   div.addEventListener("click", () => {
     game.solve();
-    // document.querySelector("#saveButton").disable;
     timer.resetTimer();
-    if (document.querySelector(".puzzleTable")) {
+    if (document.querySelector(".main__playground-box_puzzleTable")) {
       removePlayground();
     }
 
     let puzzle = getPuzzleById(game.getPuzzleId());
     createPlayground(puzzle);
-    // document.querySelector("#" + puzzle.id).classList.add("currentPuzzle");
     document.querySelector("#saveButton").setAttribute("disabled", true);
     document.querySelector("#saveButton").style.backgroundColor =
       "rgb(241, 241, 241, 0.6)";
@@ -481,8 +462,8 @@ function createContinueButton() {
 
   div.addEventListener("click", () => {
     getCurrentProgress();
-    document.querySelector(".buttonArea").remove();
-    document.querySelector(".scoreTable").remove();
+    document.querySelector(".main__menu_buttonArea").remove();
+    document.querySelector(".main__menu_scoreTable").remove();
   });
 
   saveButton.append(div);
@@ -520,18 +501,12 @@ function saveCurrentProgress() {
 
 function getCurrentProgress() {
   game.restoreFromJson(localStorage.getItem("game"));
-  // currentPuzzleId = localStorage.getItem("currentPuzzleId");
 
   let puzzle = getPuzzleById(game.getPuzzleId());
   createPlayground(puzzle);
-  // document.querySelector("#" + currentPuzzleId).classList.add("currentPuzzle");
 
   timer.elapsedTime = Number(localStorage.getItem("elapsedTime"));
   timer.startTimer();
-
-  // if (document.querySelector("table")) {
-  //   removePlayground();
-  // }
 }
 
 function getPuzzleById(id) {
@@ -539,43 +514,43 @@ function getPuzzleById(id) {
 }
 
 function removePlayground() {
-  document.querySelector(".puzzleTable").remove();
+  document.querySelector(".main__playground-box_puzzleTable").remove();
   document.querySelector("#resetButton").remove();
   document.querySelector("#saveButton").remove();
   document.querySelector("#stopwatch").remove();
-  if (document.querySelectorAll(".main_playground-box").length !== 0) {
-    document.querySelector(".main_playground-box").remove();
+  if (document.querySelectorAll(".main__playground-box").length !== 0) {
+    document.querySelector(".main__playground-box").remove();
   }
 }
 
-document.querySelector(".paragraph").addEventListener("click", () => {
-  if (document.querySelector(".main_flex-container")) {
-    document.querySelector(".main_flex-container").remove();
+document.querySelector(".footer__paragraph").addEventListener("click", () => {
+  if (document.querySelector(".main__flex-container")) {
+    document.querySelector(".main__flex-container").remove();
   }
-  if (document.querySelector(".main_playground-box")) {
-    document.querySelector(".main_playground-box").remove();
+  if (document.querySelector(".main__playground-box")) {
+    document.querySelector(".main__playground-box").remove();
   }
 
-  if (document.querySelector(".scoreTable")) {
-    document.querySelector(".scoreTable").remove;
+  if (document.querySelector(".main__menu_scoreTable")) {
+    document.querySelector(".main__menu_scoreTable").remove;
   }
 
   if (
-    !document.querySelector(".buttonArea") &&
-    !document.querySelector(".scoreTable")
+    !document.querySelector(".main__menu_buttonArea") &&
+    !document.querySelector(".main__menu_scoreTable")
   ) {
-    const buttonArea = createHTMLElement("div", "buttonArea");
+    const buttonArea = createHTMLElement("div", "main__menu_buttonArea");
     let continueButton = createContinueButton();
     let randomButton = createRadomButton();
     let puzzlesButton = createListOfPuzzlesButton();
     let table = createScoreTable();
     buttonArea.append(continueButton, randomButton, puzzlesButton);
-    document.querySelector(".main_menu").append(buttonArea, table);
+    document.querySelector(".main__menu").append(buttonArea, table);
   }
 });
 
 function createScoreTable() {
-  const table = createHTMLElement("table", "scoreTable");
+  const table = createHTMLElement("table", "main__menu_scoreTable");
   let results = lastScoresStorage.getResults();
   const caption = document.createElement("caption");
   caption.textContent = "Score Table";

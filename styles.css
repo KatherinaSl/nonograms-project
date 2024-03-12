@@ -8,9 +8,6 @@
 
 body {
   background-image: url("./assets/miyazaki.jpg");
-  /* background-size: cover; */
-  /* background-size: 100% 100%;
-  background-repeat: no-repeat; */
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -24,8 +21,8 @@ body.dark {
   background-repeat: no-repeat;
 }
 
-body.dark .main_game-rules,
-body.dark .main_playground-area {
+body.dark .main__game-rules,
+body.dark .main__playground-area {
   color: #ffffff;
 }
 
@@ -33,8 +30,12 @@ body.dark .checkbox-label {
   background-color: #2e38a9;
 }
 
-body.dark .header__title {
+body.dark .header_title {
   color: #717dff;
+}
+
+body.dark .main__flex-container {
+  border: 2px solid #2e38a9;
 }
 
 body.dark button {
@@ -91,6 +92,14 @@ body.dark .selectedCell {
   background-color: #fdf3f3;
 }
 
+body.dark .footer__paragraph {
+  color: #717dff;
+}
+
+body.dark .footer__paragraph:hover {
+  color: white;
+}
+
 .fixed-position {
   overflow-y: hidden;
 }
@@ -114,8 +123,6 @@ body.dark .selectedCell {
 
 .checkbox-label {
   background-color: #101010;
-  /* background-color: #1fb6b41f; */
-  /* background-color: #a69800; */
   width: 60px;
   height: 30px;
   border-radius: 50px;
@@ -146,7 +153,7 @@ body.dark .selectedCell {
   transform: translateX(32px);
 }
 
-.header__title {
+.header_title {
   font-size: 72px;
   font-family: "Playfair Display", serif;
   color: #d9c700;
@@ -160,14 +167,14 @@ body.dark .selectedCell {
   font-family: "Open Sans", sans-serif;
 }
 
-.main_game-rules {
+.main__game-rules {
   font-weight: bold;
   font-size: 26px;
   color: black;
   padding: 10px 10px 10px 0;
 }
 
-.main_game-rules p {
+.main__game-rules p {
   width: 80%;
   white-space: pre-line;
   font-size: 20px;
@@ -175,27 +182,18 @@ body.dark .selectedCell {
   padding: 10px 10px 10px 0;
 }
 
-.main_playground-area {
+.main__playground-area {
   color: black;
   padding: 10px 0;
 }
 
-.main_flex-container {
-  display: flex;
-  width: 100%;
-  gap: 40px;
+.main__menu {
   padding: 10px;
-  border: 2px solid #d9c700;
-  /* background-color: rgb(166, 152, 0, 0.5); */
-  border-radius: 10px;
-  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
 }
 
-body.dark .main_flex-container {
-  border: 2px solid #2e38a9;
-}
-
-.buttonArea {
+.main__menu_buttonArea {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -204,34 +202,47 @@ body.dark .main_flex-container {
   padding: 10px;
 }
 
-.scoreTable {
+.main__menu_scoreTable {
   cursor: pointer;
-  /* border: 2px solid rgb(205, 27, 185); */
-  /* border-radius: 10px; */
   border-collapse: collapse;
   width: 80%;
   background-color: rgb(205, 27, 185, 0.5);
 }
 
-.scoreTable caption {
+.main__menu_scoreTable caption {
   color: #d9c700;
   font-size: 25px;
   padding: 10px 0;
   background-color: rgba(141, 19, 127, 0.706);
 }
 
-.main_menu {
-  padding: 10px;
+.main__menu_scoreTable td {
+  width: 40px;
+  height: 40px;
+  font-size: 150%;
+}
+
+.main__menu_scoreTable tr {
+  text-align: center;
+  vertical-align: top;
+}
+
+.main__flex-container {
   display: flex;
-  flex-direction: row;
+  width: 100%;
+  gap: 40px;
+  padding: 10px;
+  border: 2px solid #d9c700;
+  border-radius: 10px;
+  justify-content: space-between;
 }
 
-.main_flex-container ul {
-  font-size: 24px;
-}
-
-.main_flex-container .flex-box {
+.main__flex-container_flex-box {
   width: 30%;
+}
+
+ul {
+  font-size: 24px;
 }
 
 li {
@@ -242,11 +253,77 @@ li {
   cursor: pointer;
 }
 
-li::marker {
+.main_flex-container_flex-box li::marker {
   color: #d9c700;
 }
 
-.puzzleTable {
+.main__pop-up {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(41, 41, 41, 0.6);
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.main__pop-up_content {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  background-color: #ffffff;
+  background-position: bottom right;
+  font-weight: bold;
+  font-size: 26px;
+  color: black;
+  text-align: center;
+  padding: 10px;
+}
+
+.main__pop-up_content img {
+  width: 200px;
+  height: 200px;
+}
+
+.main__pop-up_note {
+  font-weight: bold;
+  font-size: 26px;
+  color: black;
+  text-align: center;
+  padding: 10px;
+}
+
+.main__playground-box {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.main__playground-box_timer {
+  padding-left: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+}
+
+#stopwatch {
+  padding: 10px;
+  border: 2px solid #d9c700;
+  border-radius: 10px;
+  background-color: #d9c700;
+}
+
+.main__playground-box_puzzleTable {
   display: flex;
   flex-direction: column;
   align-self: center;
@@ -254,7 +331,7 @@ li::marker {
   margin: 0 50px;
 }
 
-.puzzleTable caption {
+.main__playground-box_puzzleTable caption {
   caption-side: bottom;
   padding-top: 10px;
   font-size: 20px;
@@ -262,22 +339,11 @@ li::marker {
   font-weight: bold;
 }
 
-.puzzleTable td {
+.main__playground-box_puzzleTable td {
   text-align: center;
   width: 40px;
   height: 40px;
   font-size: 150%;
-}
-
-.scoreTable td {
-  width: 40px;
-  height: 40px;
-  font-size: 150%;
-}
-
-.scoreTable tr {
-  text-align: center;
-  vertical-align: top;
 }
 
 body .borderLeft {
@@ -315,60 +381,10 @@ body .borderBottom {
   border-bottom: 1px solid black;
 }
 
-.main_pop-up {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  display: flex;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(41, 41, 41, 0.6);
-}
-
-.main_pop-up:not(.main_pop-up__content) {
-  cursor: pointer;
-}
-
-.hidden {
-  visibility: hidden;
-}
-
-.main_pop-up__content {
-  margin: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 20px;
-  background-color: #ffffff;
-  background-position: bottom right;
-  font-weight: bold;
-  font-size: 26px;
-  color: black;
-  text-align: center;
-  padding: 10px;
-}
-
-.main_pop-up__content img {
-  width: 200px;
-  height: 200px;
-}
-
-.main_pop-up__note {
-  font-weight: bold;
-  font-size: 26px;
-  color: black;
-  text-align: center;
-  padding: 10px;
-}
-
 .currentPuzzle {
   color: #d9c700;
 }
 
-/*RESET BUTTON*/
 button {
   margin: 5px;
   justify-content: center;
@@ -388,39 +404,16 @@ button div {
   width: 165px;
 }
 
-.sidebar {
-  /* border-radius: 30px;
-  background-color: #a69800; */
+.main__playground-box_sidebar {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.sidebar p {
+.main__playground-box_sidebar p {
   margin-top: 5px;
   font-size: 24px;
   align-self: center;
-}
-
-.main_playground-box {
-  justify-content: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.timer {
-  padding-left: 50px;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-}
-
-#stopwatch {
-  padding: 10px;
-  border: 2px solid #d9c700;
-  border-radius: 10px;
-  background-color: #d9c700;
 }
 
 .footer {
@@ -429,30 +422,26 @@ button div {
   left: 25px;
 }
 
-.paragraph {
+.footer__paragraph {
   font-size: 20px;
   cursor: pointer;
   color: #d9c700;
 }
 
-.paragraph:hover {
+.footer__paragraph:hover {
   color: black;
 }
 
-body.dark .paragraph {
-  color: #717dff;
-}
-
 @media screen and (max-width: 1279px) and (min-width: 800px) {
-  .header__title {
+  .header_title {
     font-size: 52px;
     margin-bottom: 0;
   }
 
-  .main_game-rules {
+  .main__game-rules {
     font-size: 24px;
   }
-  .main_game-rules p {
+  .main__game-rules p {
     width: 100%;
   }
 
@@ -460,94 +449,64 @@ body.dark .paragraph {
     font-size: 22px;
   }
 
-  .main_flex-container ul {
+  ul {
     font-size: 22px;
   }
-  .main_playground-box {
+  .main__playground-box {
     flex-direction: row;
     flex-wrap: wrap;
     padding-top: 20px;
     justify-content: space-evenly;
   }
 
-  .main_pop-up__content {
+  .main__playground-box_sidebar {
+    order: -1;
+    align-items: flex-start;
+  }
+  .main__pop-up_content {
     flex-direction: column;
   }
 
-  .main_pop-up__content p {
+  .main__pop-up_content p {
     order: -1;
     padding: 20px;
     font-size: 24px;
   }
 
-  .sidebar {
-    order: -1;
-    align-items: flex-start;
-  }
-
-  .buttonArea {
-    gap: 15px;
-  }
-
-  .timer {
+  .main__playground-box_timer {
     padding: 0;
   }
 
-  .scoreTable td {
+  .main__menu_buttonArea {
+    gap: 15px;
+  }
+
+  .main__menu_scoreTable td {
     font-size: 120%;
   }
 }
 
 @media screen and (max-width: 799px) and (min-width: 500px) {
-  .header__title {
+  .header_title {
     font-size: 42px;
     margin-bottom: 0px;
   }
 
-  .main_game-rules {
+  .main__game-rules {
     font-size: 22px;
   }
-  .main_game-rules p {
+  .main__game-rules p {
     width: 100%;
   }
-  .main_menu {
-    flex-direction: column;
-  }
-
   h2 {
     font-size: 22px;
   }
 
-  .buttonArea {
-    gap: 25px;
-    /* align-items: center; */
-    align-self: center;
-  }
-
-  .main_pop-up__content {
+  .main__menu {
     flex-direction: column;
   }
 
-  .main_pop-up__content p {
-    order: -1;
-    padding: 20px 0 0 0;
-    margin: auto 40px;
-    font-size: 20px;
-  }
-
-  .scoreTable {
-    align-self: center;
-  }
-
-  .scoreTable caption {
-    font-size: 20px;
-  }
-
-  .scoreTable td {
-    font-size: 120%;
-  }
-
-  .main_flex-container ul {
+  ul {
     font-size: 18px;
   }
 
@@ -555,19 +514,47 @@ body.dark .paragraph {
     font-size: 18px;
   }
 
-  .main_playground-box {
+  .main__menu_buttonArea {
+    gap: 25px;
+    align-self: center;
+  }
+
+  .main__menu_scoreTable {
+    align-self: center;
+  }
+
+  .main__menu_scoreTable caption {
+    font-size: 20px;
+  }
+
+  .main__menu_scoreTable td {
+    font-size: 120%;
+  }
+
+  .main__pop-up_content {
+    flex-direction: column;
+  }
+
+  .main__pop-up_content p {
+    order: -1;
+    padding: 20px 0 0 0;
+    margin: auto 40px;
+    font-size: 20px;
+  }
+
+  .main__playground-box {
     flex-direction: row;
     flex-wrap: wrap;
     padding-top: 20px;
     justify-content: space-evenly;
   }
 
-  .sidebar {
-    order: -1;
-    align-items: flex-start;
+  .main__playground-box_timer {
+    padding: 0;
   }
 
-  .timer {
-    padding: 0;
+  .main__playground-box_sidebar {
+    order: -1;
+    align-items: flex-start;
   }
 }
